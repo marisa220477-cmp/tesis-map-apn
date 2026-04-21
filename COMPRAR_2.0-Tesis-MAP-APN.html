@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMPR.AR 2.0 — Propuesta de Digitalización Plena · APN</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif}
+body{background:#f0fdf4;min-height:100vh}
+.topbar{background:#00693e;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+.topbar-left h1{color:#fff;font-size:22px;font-weight:700}
+.topbar-left p{color:#a7f3d0;font-size:13px;margin-top:2px}
+.topbar-badge{background:#ecfdf5;color:#065f46;font-size:12px;padding:5px 14px;border-radius:20px;font-weight:600}
+.nav{background:#fff;border-bottom:2px solid #d1fae5;display:flex;padding:0 28px;gap:4px;flex-wrap:wrap}
+.nav-btn{padding:12px 18px;font-size:13px;color:#64748b;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;font-weight:500;transition:all 0.2s}
+.nav-btn:hover{color:#065f46}
+.nav-btn.active{color:#065f46;border-bottom:3px solid #00693e;font-weight:700}
+.content{max-width:1100px;margin:0 auto;padding:24px 20px}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:#fff;border-radius:12px;padding:22px;box-shadow:0 2px 8px rgba(0,0,0,0.07);margin-bottom:18px}
+.card h2{font-size:16px;font-weight:700;color:#1e293b;margin-bottom:4px}
+.card .sub{font-size:13px;color:#64748b;margin-bottom:16px}
+.phase-bar{background:#fff;border-radius:12px;padding:18px 22px;box-shadow:0 2px 8px rgba(0,0,0,0.07);margin-bottom:18px}
+.phases{display:flex;align-items:center;gap:0;overflow-x:auto}
+.phase-step{display:flex;align-items:center;gap:8px;flex:1;min-width:80px}
+.phase-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;cursor:pointer;transition:all 0.2s}
+.phase-dot.done{background:#00693e;color:#fff}
+.phase-dot.active{background:#ecfdf5;color:#00693e;border:2.5px solid #00693e}
+.phase-dot.pending{background:#f1f5f9;color:#94a3b8;border:1.5px solid #e2e8f0}
+.phase-label{font-size:11px;color:#94a3b8;font-weight:500}
+.phase-label.active{color:#065f46;font-weight:700}
+.phase-line{flex:1;height:2px;background:#d1fae5;max-width:30px}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700}
+.badge-green{background:#dcfce7;color:#166534}
+.badge-amber{background:#fef3c7;color:#92400e}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-gray{background:#f1f5f9;color:#64748b}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-future{background:#f5f3ff;color:#6d28d9}
+.stat-val{font-size:26px;font-weight:800;color:#1e293b}
+.stat-label{font-size:12px;color:#94a3b8;margin-top:2px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.metric{background:#f8fafc;border-radius:8px;padding:14px;text-align:center}
+.row-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.row-item:last-child{border-bottom:none}
+.row-label{color:#64748b}
+.row-val{font-weight:700;color:#1e293b}
+.chip-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{background:#dcfce7;color:#166534;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:600}
+.progress-bar{height:10px;background:#e2e8f0;border-radius:5px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;border-radius:5px;background:#00693e;transition:width 1s ease}
+.fase-card{padding:14px;background:#f8fafc;border-radius:8px;border-left:4px solid #00693e;margin-bottom:10px}
+.fase-card h4{font-size:13px;font-weight:700;color:#065f46;margin-bottom:4px}
+.fase-card p{font-size:12px;color:#6b7280;line-height:1.5}
+.alert-box{padding:12px 16px;border-radius:8px;margin-bottom:10px;font-size:13px;display:flex;align-items:center;gap:10px}
+.alert-ok{background:#dcfce7;color:#166534;border-left:4px solid #22c55e}
+.alert-warn{background:#fef3c7;color:#92400e;border-left:4px solid #f59e0b}
+.alert-err{background:#fee2e2;color:#991b1b;border-left:4px solid #ef4444}
+.sedp-row{display:flex;align-items:center;gap:10px;padding:10px;background:#f8fafc;border-radius:8px;margin-bottom:8px}
+.sedp-score{font-size:22px;font-weight:800;min-width:44px;text-align:center}
+.sedp-info h5{font-size:13px;font-weight:700;color:#1e293b}
+.sedp-info p{font-size:11px;color:#94a3b8}
+.sedp-bar{flex:1;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+.sedp-fill{height:100%;border-radius:3px}
+.btn{background:#00693e;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.2s}
+.btn:hover{background:#065f46}
+.btn-outline{background:#fff;color:#00693e;border:1.5px solid #00693e}
+.footer-bar{background:#f0fdf4;border-top:1px solid #bbf7d0;padding:12px 28px;display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.footer-text{font-size:12px;color:#94a3b8}
+.search-box{display:flex;gap:8px;margin-bottom:16px}
+.search-box input{flex:1;padding:10px 14px;border:1.5px solid #d1fae5;border-radius:8px;font-size:13px}
+.search-box button{background:#00693e;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#f0fdf4;color:#065f46;font-weight:700;padding:10px 12px;text-align:left;border-bottom:2px solid #bbf7d0}
+td{padding:10px 12px;border-bottom:1px solid #f1f5f9;color:#374151}
+tr:hover td{background:#f9fafb}
+@media(max-width:640px){.grid-3,.grid-2{grid-template-columns:1fr}.phases{gap:4px}.phase-label{display:none}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <h1>COMPR.AR 2.0</h1>
+    <p>Propuesta de digitalización plena del ciclo de contrataciones · APN</p>
+  </div>
+  <div class="topbar-badge">ONC · Propuesta Estratégica N°5</div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="showPanel('panel',this)">Panel principal</button>
+  <button class="nav-btn" onclick="showPanel('etendering',this)">e-Tendering</button>
+  <button class="nav-btn" onclick="showPanel('sedp',this)">SEDP</button>
+  <button class="nav-btn" onclick="showPanel('transparencia',this)">Transparencia · OCDS</button>
+  <button class="nav-btn" onclick="showPanel('novedades',this)">Novedades normativas</button>
+</div>
+
+<div class="content">
+
+  <!-- PANEL PRINCIPAL -->
+  <div id="panel" class="panel active">
+    <div class="phase-bar">
+      <p style="font-size:12px;color:#94a3b8;margin-bottom:12px;font-weight:600">HOJA DE RUTA — 5 FASES · 24 MESES</p>
+      <div class="phases">
+        <div class="phase-step"><div class="phase-dot done" title="Completada">✓</div><div class="phase-label">Planificación</div></div>
+        <div class="phase-line"></div>
+        <div class="phase-step"><div class="phase-dot done" title="Completada">✓</div><div class="phase-label">Llamado</div></div>
+        <div class="phase-line"></div>
+        <div class="phase-step"><div class="phase-dot active">3</div><div class="phase-label active">e-Tendering</div></div>
+        <div class="phase-line"></div>
+        <div class="phase-step"><div class="phase-dot pending">4</div><div class="phase-label">Adjudicación</div></div>
+        <div class="phase-line"></div>
+        <div class="phase-step"><div class="phase-dot pending">5</div><div class="phase-label">Ejecución</div></div>
+        <div class="phase-line"></div>
+        <div class="phase-step"><div class="phase-dot pending">6</div><div class="phase-label">Auditoría</div></div>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+          <h2>Digitalización del ciclo</h2><span class="badge badge-amber">Fase 1 activa</span>
+        </div>
+        <div class="stat-val">42%</div>
+        <div class="stat-label">automatización actual APN</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:42%"></div></div>
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:12px">Meta Fase 5: 100%</div>
+        <div class="row-item"><span class="row-label">Fase 1 (meses 1–6)</span><span class="row-val" style="color:#f59e0b">40%</span></div>
+        <div class="row-item"><span class="row-label">Fase 2 (meses 7–12)</span><span class="row-val" style="color:#3b82f6">65%</span></div>
+        <div class="row-item"><span class="row-label">Fase 3 (meses 13–18)</span><span class="row-val" style="color:#3b82f6">80%</span></div>
+        <div class="row-item"><span class="row-label">Fase 4 (meses 19–22)</span><span class="row-val" style="color:#22c55e">92%</span></div>
+        <div class="row-item"><span class="row-label">Fase 5 (meses 23–24)</span><span class="row-val" style="color:#00693e">100%</span></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+          <h2>e-Tendering activo</h2><span class="badge badge-green">En curso</span>
+        </div>
+        <div class="stat-val">38</div>
+        <div class="stat-label">ofertas recibidas (sobre digital)</div>
+        <div style="margin-top:14px">
+          <div class="row-item"><span class="row-label">Apertura simultánea</span><span class="row-val" style="color:#00693e">✓ Automática</span></div>
+          <div class="row-item"><span class="row-label">Cifrado de sobres</span><span class="row-val" style="color:#00693e">✓ Activo</span></div>
+          <div class="row-item"><span class="row-label">Alerta precio inusual</span><span class="row-val" style="color:#ef4444">2 detectadas</span></div>
+          <div class="row-item"><span class="row-label">Validación ARCA</span><span class="row-val" style="color:#00693e">✓ Tiempo real</span></div>
+          <div class="row-item"><span class="row-label">Firmas digitales</span><span class="row-val" style="color:#00693e">✓ Válidas</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+          <h2>Integración sistémica</h2><span class="badge badge-blue">9 sistemas</span>
+        </div>
+        <div class="stat-val">USD 212M</div>
+        <div class="stat-label">ahorro estimado anual (BID 2020)</div>
+        <div class="chip-grid">
+          <span class="chip">e-SIDIF</span><span class="chip">GDE/TAD</span><span class="chip">ARCA</span>
+          <span class="chip">SIGEN</span><span class="chip">AGN</span><span class="chip">SICO</span>
+          <span class="chip">CONTRAT.AR</span><span class="chip">OCDS</span><span class="chip">TGN/CUT</span>
+        </div>
+        <div style="margin-top:14px">
+          <div class="row-item"><span class="row-label">Inversión total</span><span class="row-val">USD 5,7M</span></div>
+          <div class="row-item"><span class="row-label">Retorno 1er año</span><span class="row-val" style="color:#00693e">37x inversión</span></div>
+          <div class="row-item"><span class="row-label">Financiamiento BM</span><span class="row-val" style="color:#3b82f6">USD 80M aprobados</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Los 6 módulos de COMPR.AR 2.0</h2>
+      <p class="sub">Cobertura del 100% del ciclo de contrataciones</p>
+      <div class="grid-2">
+        <div class="fase-card"><h4>① Planificación</h4><p>Digitalización del PAC con integración presupuestaria en tiempo real con e-SIDIF y alertas automáticas de disponibilidad de crédito.</p></div>
+        <div class="fase-card"><h4>② Llamado y gestión de pliegos</h4><p>Editor colaborativo, circulares aclaratorias, publicación multisitio y registro en expediente electrónico GDE.</p></div>
+        <div class="fase-card"><h4>③ e-Tendering</h4><p>Presentación de ofertas en sobre digital encriptado, apertura simultánea y automática, evaluación asistida con comparador de precios y alerta de precios inusuales.</p></div>
+        <div class="fase-card"><h4>④ Adjudicación y contrato digital</h4><p>Dictamen asistido, notificación electrónica, impugnación digital, contrato u orden de compra generada automáticamente y publicación en OCDS en tiempo real.</p></div>
+        <div class="fase-card"><h4>⑤ Ejecución contractual</h4><p>Registro de entregas, conformidad con firma digital, generación automática de la orden de pago integrada con e-SIDIF y seguimiento del proveedor.</p></div>
+        <div class="fase-card"><h4>⑥ Auditoría digital</h4><p>Panel de control para auditores de SIGEN y AGN con acceso de solo lectura, alertas automáticas de desvíos y trazabilidad completa.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL E-TENDERING -->
+  <div id="etendering" class="panel">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div><h2>e-Tendering — Licitación 100% electrónica</h2><p class="sub">Módulo 3 del ciclo COMPR.AR 2.0</p></div>
+        <span class="badge badge-green">En curso</span>
+      </div>
+      <div class="grid-3" style="margin-bottom:18px">
+        <div class="metric"><div class="stat-val" style="color:#00693e">38</div><div class="stat-label">Ofertas recibidas</div></div>
+        <div class="metric"><div class="stat-val" style="color:#3b82f6">12</div><div class="stat-label">Proveedores habilitados</div></div>
+        <div class="metric"><div class="stat-val" style="color:#f59e0b">2</div><div class="stat-label">Alertas de precio inusual</div></div>
+      </div>
+      <div class="alert-ok">✓ Apertura simultánea realizada automáticamente el 20/04/2026 a las 10:00 hs</div>
+      <div class="alert-warn">⚠ 2 ofertas presentan precios un 35% por debajo del precio de referencia — requieren análisis</div>
+      <div class="alert-ok">✓ Validación de CUIT con ARCA completada para todos los oferentes</div>
+      <div class="alert-ok">✓ Firma digital verificada en todos los sobres recibidos</div>
+
+      <h3 style="font-size:14px;font-weight:700;color:#1e293b;margin:18px 0 10px">Comparador de ofertas (datos de ejemplo)</h3>
+      <table>
+        <tr><th>Proveedor</th><th>CUIT</th><th>Monto ofertado</th><th>Precio ref.</th><th>Variación</th><th>Estado</th></tr>
+        <tr><td>Tecnologías SA</td><td>30-12345678-9</td><td>$2.450.000</td><td>$2.380.000</td><td style="color:#22c55e">+3%</td><td><span class="badge badge-green">Normal</span></td></tr>
+        <tr><td>Sistemas Arg. SRL</td><td>30-98765432-1</td><td>$2.210.000</td><td>$2.380.000</td><td style="color:#f59e0b">-7%</td><td><span class="badge badge-amber">Analizar</span></td></tr>
+        <tr><td>InfoTech SRL</td><td>30-55544433-2</td><td>$1.540.000</td><td>$2.380.000</td><td style="color:#ef4444">-35%</td><td><span class="badge badge-red">Alerta precio</span></td></tr>
+        <tr><td>Digital Gov SA</td><td>30-77788899-0</td><td>$2.395.000</td><td>$2.380.000</td><td style="color:#22c55e">+1%</td><td><span class="badge badge-green">Normal</span></td></tr>
+      </table>
+      <p style="font-size:11px;color:#94a3b8;margin-top:8px">* Datos de ejemplo ilustrativos. Los datos reales requieren acceso a COMPR.AR con API pública habilitada.</p>
+    </div>
+  </div>
+
+  <!-- PANEL SEDP -->
+  <div id="sedp" class="panel">
+    <div class="card">
+      <h2>SEDP — Sistema de Evaluación de Desempeño de Proveedores</h2>
+      <p class="sub">Módulo reputacional integrado · Puntuación 0 a 100 por contrato ejecutado</p>
+      <div class="grid-2" style="margin-bottom:18px">
+        <div>
+          <h3 style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:12px">Ponderación por dimensión</h3>
+          <div class="row-item"><span class="row-label">Cumplimiento de plazos</span><span class="row-val">30%</span></div>
+          <div class="row-item"><span class="row-label">Calidad del bien/servicio</span><span class="row-val">35%</span></div>
+          <div class="row-item"><span class="row-label">Documentación y facturación</span><span class="row-val">20%</span></div>
+          <div class="row-item"><span class="row-label">Conducta contractual</span><span class="row-val">15%</span></div>
+        </div>
+        <div>
+          <h3 style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:12px">Calculador de Score SEDP</h3>
+          <div style="font-size:12px;color:#64748b;margin-bottom:6px">Plazos (0-100):</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><input type="range" min="0" max="100" value="80" oninput="calcSEDP()" id="s1" style="flex:1;accent-color:#00693e"><span id="sv1" style="font-weight:700;min-width:32px">80</span></div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:6px">Calidad (0-100):</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><input type="range" min="0" max="100" value="90" oninput="calcSEDP()" id="s2" style="flex:1;accent-color:#00693e"><span id="sv2" style="font-weight:700;min-width:32px">90</span></div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:6px">Documentación (0-100):</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><input type="range" min="0" max="100" value="75" oninput="calcSEDP()" id="s3" style="flex:1;accent-color:#00693e"><span id="sv3" style="font-weight:700;min-width:32px">75</span></div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:6px">Conducta (0-100):</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><input type="range" min="0" max="100" value="85" oninput="calcSEDP()" id="s4" style="flex:1;accent-color:#00693e"><span id="sv4" style="font-weight:700;min-width:32px">85</span></div>
+          <div style="background:#f0fdf4;border-radius:8px;padding:14px;text-align:center;margin-top:8px">
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:4px">SCORE SEDP</div>
+            <div id="score-display" style="font-size:36px;font-weight:900;color:#00693e">83</div>
+            <div id="score-label" style="font-size:13px;color:#16a34a;margin-top:2px">Proveedor confiable</div>
+          </div>
+        </div>
+      </div>
+      <h3 style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:12px">Ranking de proveedores (datos de ejemplo)</h3>
+      <div class="sedp-row">
+        <div class="sedp-score" style="color:#00693e">94</div>
+        <div class="sedp-info"><h5>Tecnologías SA</h5><p>47 contratos · Sin inhabilitaciones</p></div>
+        <div class="sedp-bar"><div class="sedp-fill" style="width:94%;background:#00693e"></div></div>
+        <span class="badge badge-green">Confiable</span>
+      </div>
+      <div class="sedp-row">
+        <div class="sedp-score" style="color:#3b82f6">78</div>
+        <div class="sedp-info"><h5>Digital Gov SA</h5><p>23 contratos · 1 observación</p></div>
+        <div class="sedp-bar"><div class="sedp-fill" style="width:78%;background:#3b82f6"></div></div>
+        <span class="badge badge-blue">Bueno</span>
+      </div>
+      <div class="sedp-row">
+        <div class="sedp-score" style="color:#f59e0b">55</div>
+        <div class="sedp-info"><h5>InfoTech SRL</h5><p>8 contratos · 3 demoras</p></div>
+        <div class="sedp-bar"><div class="sedp-fill" style="width:55%;background:#f59e0b"></div></div>
+        <span class="badge badge-amber">Regular</span>
+      </div>
+      <div class="sedp-row">
+        <div class="sedp-score" style="color:#ef4444">32</div>
+        <div class="sedp-info"><h5>Sistemas Arg. SRL</h5><p>12 contratos · Inhabilitación temporal</p></div>
+        <div class="sedp-bar"><div class="sedp-fill" style="width:32%;background:#ef4444"></div></div>
+        <span class="badge badge-red">Inhabilitado</span>
+      </div>
+      <p style="font-size:11px;color:#94a3b8;margin-top:8px">* Datos de ejemplo ilustrativos.</p>
+    </div>
+  </div>
+
+  <!-- PANEL TRANSPARENCIA -->
+  <div id="transparencia" class="panel">
+    <div class="card">
+      <h2>Portal de Transparencia Activa · OCDS</h2>
+      <p class="sub">Datos abiertos en estándar Open Contracting Data Standard</p>
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="Buscar por organismo, proveedor o número de expediente..." onkeypress="if(event.key==='Enter')buscarOCDS()">
+        <button onclick="buscarOCDS()">Buscar</button>
+      </div>
+      <div id="ocds-results">
+        <table>
+          <tr><th>Expediente</th><th>Organismo</th><th>Objeto</th><th>Monto adj.</th><th>Proveedor</th><th>Estado</th></tr>
+          <tr><td>EX-2026-001</td><td>Min. Economía</td><td>Licencias software</td><td>$2.450.000</td><td>Tecnologías SA</td><td><span class="badge badge-green">Ejecutado</span></td></tr>
+          <tr><td>EX-2026-002</td><td>INTA</td><td>Equipos informáticos</td><td>$1.870.000</td><td>Digital Gov SA</td><td><span class="badge badge-blue">En ejecución</span></td></tr>
+          <tr><td>EX-2026-003</td><td>Min. Salud</td><td>Servicios cloud</td><td>$3.200.000</td><td>InfoCloud SRL</td><td><span class="badge badge-amber">Adjudicado</span></td></tr>
+          <tr><td>EX-2025-189</td><td>AFIP</td><td>Desarrollo sistemas</td><td>$5.600.000</td><td>TechAR SA</td><td><span class="badge badge-green">Ejecutado</span></td></tr>
+          <tr><td>EX-2025-201</td><td>Min. Trabajo</td><td>Conectividad</td><td>$980.000</td><td>Telecom SA</td><td><span class="badge badge-green">Ejecutado</span></td></tr>
+        </table>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:#fef3c7;border-radius:8px;border-left:4px solid #f59e0b">
+        <b style="font-size:13px;color:#92400e">Nota metodológica</b>
+        <p style="font-size:12px;color:#6b7280;margin-top:4px;line-height:1.5">El prototipo utiliza datos de ejemplo ilustrativos. Los datos reales de contrataciones no pueden consultarse en tiempo real porque COMPR.AR no cuenta con una API pública con acceso desde navegador (CORS habilitado), y el dataset en datos.gob.ar registra su última actualización en junio de 2021. Esta limitación técnica es evidencia empírica de la brecha documentada en el Plano 3 del MOBID.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL NOVEDADES -->
+  <div id="novedades" class="panel">
+    <div class="card">
+      <h2>Novedades normativas 2023–2026</h2>
+      <p class="sub">Actualizaciones del marco regulatorio de compras públicas en la APN</p>
+      <div style="margin-top:4px">
+        <div style="padding:14px;border-left:4px solid #00693e;background:#f0fdf4;border-radius:0 8px 8px 0;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b style="font-size:13px;color:#065f46">Decreto N° 5/2026 (06/01/2026)</b><span class="badge badge-green">Vigente</span></div>
+          <p style="font-size:12px;color:#374151;line-height:1.5">Amplía las causales de inelegibilidad en contrataciones públicas, obligando a las UOC a verificar que los oferentes no figuren en las listas de inhabilitados del Banco Mundial y del BID. Se integra al SICO y al módulo de evaluación del e-tendering de COMPR.AR 2.0.</p>
+        </div>
+        <div style="padding:14px;border-left:4px solid #3b82f6;background:#eff6ff;border-radius:0 8px 8px 0;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b style="font-size:13px;color:#1d4ed8">Comunicación General ONC N° 3/2026</b><span class="badge badge-blue">2026</span></div>
+          <p style="font-size:12px;color:#374151;line-height:1.5">Instrumenta el Protocolo MERCOSUR de Compras Públicas, que garantiza trato nacional a proveedores de Argentina, Uruguay y Brasil en licitaciones superiores a los umbrales establecidos, ampliando el universo de oferentes.</p>
+        </div>
+        <div style="padding:14px;border-left:4px solid #a855f7;background:#faf5ff;border-radius:0 8px 8px 0;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b style="font-size:13px;color:#6b21a8">Decreto N° 206/2025 — SICO</b><span class="badge badge-future">2025</span></div>
+          <p style="font-size:12px;color:#374151;line-height:1.5">Crea el Sistema de Información de Contrataciones (SICO) como base centralizada de proveedores del Estado. Habilita la integración con ARCA/AFIP para verificación automática de situación fiscal en tiempo real.</p>
+        </div>
+        <div style="padding:14px;border-left:4px solid #f59e0b;background:#fffbeb;border-radius:0 8px 8px 0;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b style="font-size:13px;color:#92400e">DA N° 899/2024 — Mesa IA</b><span class="badge badge-amber">2024</span></div>
+          <p style="font-size:12px;color:#374151;line-height:1.5">Crea la Mesa Interministerial sobre Inteligencia Artificial. Habilita el uso de IA en gestión pública incluyendo detección de irregularidades en contrataciones. Base normativa para el módulo de analítica avanzada de COMPR.AR 2.0 (Nivel 4 IMDAC).</p>
+        </div>
+        <div style="padding:14px;border-left:4px solid #94a3b8;background:#f8fafc;border-radius:0 8px 8px 0;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b style="font-size:13px;color:#475569">Disposición ONC N° 62/2024</b><span class="badge badge-gray">2024</span></div>
+          <p style="font-size:12px;color:#374151;line-height:1.5">Actualiza el Manual de Procedimiento de COMPR.AR. Modifica garantías, penalidades y modalidades electrónicas del sistema de contrataciones.</p>
+        </div>
+        <div style="padding:14px;border-left:4px solid #94a3b8;background:#f8fafc;border-radius:0 8px 8px 0;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b style="font-size:13px;color:#475569">Comunicación General ONC N° 3/2025</b><span class="badge badge-gray">2025</span></div>
+          <p style="font-size:12px;color:#374151;line-height:1.5">Conjunta ONC–Oficina Anticorrupción. Establece Programas de Integridad en Acuerdos Marco en cumplimiento de la Ley N° 27.401 de Responsabilidad Penal Empresaria.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-bar">
+  <div class="footer-text">COMPR.AR 2.0 · Propuesta Estratégica N°5 · Tesis MAP UBA FCE · Claudia Marisa Peralta · 2026 · Datos de ejemplo ilustrativos</div>
+  <button class="btn btn-outline">Ver propuesta completa</button>
+</div>
+
+<script>
+function showPanel(id, btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function calcSEDP(){
+  const v1=parseInt(document.getElementById('s1').value);
+  const v2=parseInt(document.getElementById('s2').value);
+  const v3=parseInt(document.getElementById('s3').value);
+  const v4=parseInt(document.getElementById('s4').value);
+  document.getElementById('sv1').textContent=v1;
+  document.getElementById('sv2').textContent=v2;
+  document.getElementById('sv3').textContent=v3;
+  document.getElementById('sv4').textContent=v4;
+  const score=Math.round(v1*0.3+v2*0.35+v3*0.2+v4*0.15);
+  document.getElementById('score-display').textContent=score;
+  const el=document.getElementById('score-label');
+  if(score>=80){el.textContent='Proveedor confiable';el.style.color='#16a34a';document.getElementById('score-display').style.color='#00693e';}
+  else if(score>=60){el.textContent='Proveedor bueno';el.style.color='#2563eb';document.getElementById('score-display').style.color='#3b82f6';}
+  else if(score>=40){el.textContent='Proveedor regular — monitorear';el.style.color='#d97706';document.getElementById('score-display').style.color='#f59e0b';}
+  else{el.textContent='Proveedor inhabilitado (<40)';el.style.color='#dc2626';document.getElementById('score-display').style.color='#ef4444';}
+}
+
+function buscarOCDS(){
+  const q=document.getElementById('search-input').value.toLowerCase();
+  const rows=document.querySelectorAll('#ocds-results tbody tr');
+  rows.forEach(row=>{
+    row.style.display=(!q||row.textContent.toLowerCase().includes(q))?'':'none';
+  });
+}
+</script>
+</body>
+</html>
